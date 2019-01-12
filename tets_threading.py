@@ -1,11 +1,13 @@
 #coding:utf-8
+import thread
+import threading
+import requests
+import re
+
 import requests
 import json
 import re
 import threading
-#定义数据：
-page = 0
-
 
 class Spider(object):
 
@@ -25,69 +27,29 @@ class Spider(object):
             'resourceType': '1',
             'issueIds': self.id2
         }
-        print ('取得图片分类')
+
         a = requests.get(self.url1, headers=self.user_agent, params=params1)
         data = a.json()['data']
         #resourceId = data[0]['resourceId']
         count = data[0]['count']  #pagenumber
         webpage = data[0]['jpg']
         fname = data[0]['resourceName'] + data[0]['issueName'] #文件名称
+        print('————找到所属目录————')
         return {'page':count,
                 'pagetype':webpage,
                 'fname':fname}
 
 
-    def get_hash(self):
+    def get_hash(self,count):
         params2 = {
             'op': 'Resource.getHash',
             'resourceType': '1',
             'resourceId': self.id1,
             'issueId': self.id2,
             'start': '1',
-            'end': self.get_par1()['page']
+            'end': count
         }
-        pageid = []
-        b = requests.get(self.url1, headers=self.user_agent, params=params2)
-        data2 = b.json()['data'] #hash & pagenumber
-        for j in data2: #得到hash码
-            pageid.append(str(j['hash']))
-        print ('取得hash值')
-        return pageid
-
-
-
-    def get_src(self):
-        print('————正在存储图片————')
-        src_box = []
-        for p in self.get_hash():
-            src = 'http://img-qn.bookan.com.cn/jpage' + str(self.get_par1()['pagetype']) + '/' + self.id1 + '/' + '%s-%s'%(self.id1,self.id2) + '/' + p + '_big.jpg'
-            src_box.append(src)
-        print ('————链接存储成功————')
-        return src_box
-
-    def get_pic(self):
-        n = 1
-        for l in self.get_src():
-            p = requests.get(url=l, headers=self.user_agent)
-            with open('pict/%s.jpg'%n, 'ab') as f:
-                f.write(p.content)
-                f.close()
-                print('完成第%s张下载'%n)
-                n = n + 1
-
-
-
-
-
-
-
-
-
-
+        print params2
 if __name__ == '__main__':
     spider = Spider()
-
-    #spider.get_pic(spider.get_src(spider.get_hash(spider.get_par1()['page']),spider.get_par1()['pagetype']))
-    #spider.get_src(spider.get_hash(), spider.get_par1()['pagetype'])
-    spider.get_src()
-
+    spider.get_hash(spider.get_par1()['page'])
