@@ -91,3 +91,7 @@ if __name__ == '__main__':
     #spider.get_src(spider.get_hash(), spider.get_par1()['pagetype'])
     spider.get_src()
 
+for ll in content:
+    issuID = ll['issuId']
+    issuname = ll['issueName']
+    print issuID, issuname
